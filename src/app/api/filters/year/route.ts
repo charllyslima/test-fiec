@@ -15,7 +15,13 @@ export async function GET() {
     }
 
     try {
-        const yearFilters = await prisma.year_filter.findMany();
+        const yearFilters = await prisma.year_filter.findMany({
+            orderBy: [
+                {
+                    sidraId: 'desc',
+                },
+            ],
+        });
 
         return NextResponse.json({
             yearFilters,

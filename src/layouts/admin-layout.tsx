@@ -1,14 +1,17 @@
 import {ReactNode} from "react";
-import Sidebar from "@/components/sidebar";
 import Navbar from "@/components/navbar";
+import ThemeSwitcher from "@/components/theme-switcher";
 
 export default function AdminLayout({children}: { children: ReactNode }) {
+
     return (
         <div className="min-h-screen flex">
             <Navbar>
-                <Sidebar>
+                <ThemeSwitcher/>
+                <div className="h-[calc(100vh_-_65px)] overflow-y-auto p-5">
                     {children}
-                </Sidebar>
+                </div>
+
             </Navbar>
 
         </div>

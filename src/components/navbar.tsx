@@ -1,7 +1,7 @@
 import React from "react";
-import {SlMenu} from "react-icons/sl";
 import Menu from "@/components/menu";
 import LogoutButton from "@/components/logout-button";
+import {FaRegUser} from "react-icons/fa";
 
 const Navbar = ({children}: { children: React.ReactNode }) => {
 
@@ -10,23 +10,14 @@ const Navbar = ({children}: { children: React.ReactNode }) => {
         <div className="drawer">
             <input id="my-drawer-3" type="checkbox" className="drawer-toggle"/>
             <div className="drawer-content flex flex-col">
-                <div className="navbar bg-base-300 w-full flex justify-between lg:justify-end">
-                    <div className="flex-none lg:hidden">
-                        <label
-                            htmlFor="my-drawer-3"
-                            aria-label="open sidebar"
-                            className="btn btn-square btn-ghost"
-                        >
-                            <SlMenu/>
-                        </label>
-                    </div>
+                <div className="navbar bg-base-300 w-full flex justify-end">
                     <div className="">
                         <details className="dropdown dropdown-end">
                             <summary
                                 className="btn rounded-full bg-transparent border-0 shadow-none hover:bg-transparent">
                                 <div className="avatar placeholder">
-                                    <div className="bg-neutral text-neutral-content w-8 rounded-full">
-                                        <span className="text-xs">CH</span>
+                                    <div className="bg-neutral text-neutral-content p-3 rounded-full">
+                                        <FaRegUser />
                                     </div>
                                 </div>
                             </summary>

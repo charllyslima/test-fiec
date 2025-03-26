@@ -15,7 +15,13 @@ export async function GET() {
     }
 
     try {
-        const cnaeFilters = await prisma.cnae_filter.findMany();
+        const cnaeFilters = await prisma.cnae_filter.findMany({
+            orderBy: [
+                {
+                    sidraId: 'asc',
+                },
+            ],
+        });
 
         return NextResponse.json({
             cnaeFilters,

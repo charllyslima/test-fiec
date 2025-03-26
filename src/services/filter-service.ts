@@ -4,7 +4,7 @@ class FilterService {
             const response = await fetch("/api/filters/variable");
             const data = await response.json();
 
-            return data.variableFilters;
+            return data;
         } catch (error) {
             console.error("Erro ao buscar filtros de variável:", error);
             throw new Error("Erro ao buscar filtros de variável");

@@ -298,6 +298,8 @@ async function main() {
     ];
 
     const dataYear = [
+        {sidraId: 2022, name: '2022'},
+        {sidraId: 2021, name: '2021'},
         {sidraId: 2020, name: '2020'},
         {sidraId: 2019, name: '2019'},
         {sidraId: 2018, name: '2018'},
@@ -310,8 +312,6 @@ async function main() {
         {sidraId: 2011, name: '2011'},
         {sidraId: 2010, name: '2010'},
         {sidraId: 2009, name: '2009'},
-        {sidraId: 2008, name: '2008'},
-        {sidraId: 2007, name: '2007'},
     ]
 
     // Inserindo os dados no banco
@@ -332,7 +332,6 @@ async function main() {
         });
     }
 
-    console.log('Seeder executado com sucesso!');
 }
 
 // Executa o seeding

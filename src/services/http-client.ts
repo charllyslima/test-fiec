@@ -1,71 +1,109 @@
+import axios, { AxiosRequestConfig } from 'axios';
+
 class HttpClient {
     private baseUrl: string;
     private readonly headers: Record<string, string>;
 
     constructor(baseUrl: string, headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'X-Requested-With': 'XMLHttpRequest',
     }) {
         this.baseUrl = baseUrl;
         this.headers = headers;
     }
 
-    private async request(endpoint: string, options: RequestInit = {}) {
+    private getCacheKey(url: string): string {
+        return `http_cache_${url}`;
+    }
+
+    private getFromCache(url: string): any | null {
+        const cacheKey = this.getCacheKey(url);
+        const cached = localStorage.getItem(cacheKey);
+        if (!cached) return null;
+
+        try {
+            const parsed = JSON.parse(cached);
+            const isExpired = parsed.expiry && parsed.expiry < Date.now();
+            if (isExpired) {
+                localStorage.removeItem(cacheKey);
+                return null;
+            }
+            return parsed.data;
+        } catch {
+            localStorage.removeItem(cacheKey);
+            return null;
+        }
+    }
+
+    private saveToCache(url: string, data: any, ttlMinutes = 60) {
+        const cacheKey = this.getCacheKey(url);
+        const expiry = Date.now() + ttlMinutes * 60 * 1000;
+        const value = JSON.stringify({ data, expiry });
+        localStorage.setItem(cacheKey, value);
+    }
+
+    private async request(endpoint: string, options: AxiosRequestConfig = {}) {
         const url = `${this.baseUrl}${endpoint}`;
 
-        const defaultOptions: RequestInit = {
+        const defaultOptions: AxiosRequestConfig = {
             method: 'GET',
             headers: {
                 ...this.headers,
                 ...options.headers,
             },
-            credentials: 'same-origin',
             ...options,
         };
 
-        const response = await fetch(url, defaultOptions);
-
-        if (!response.ok) {
-            throw new Error(`Erro na requisição: ${response.statusText}`);
+        // Only apply cache logic for GET requests
+        if (defaultOptions.method === 'GET') {
+            const cached = this.getFromCache(url);
+            if (cached) return cached;
         }
 
-        return await response.json();
+        try {
+            const response = await axios(url, defaultOptions);
+            if (defaultOptions.method === 'GET') {
+                this.saveToCache(url, response.data);
+            }
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                throw new Error(`Erro na requisição: ${error.response?.statusText || 'Erro desconhecido'}`);
+            }
+            throw new Error('Erro desconhecido');
+        }
     }
 
-    public async get(endpoint: string, options: RequestInit = {}, baseUrl?: string) {
-        if(baseUrl){
+    public async get(endpoint: string, options: AxiosRequestConfig = {}, baseUrl?: string) {
+        if (baseUrl) {
             this.baseUrl = baseUrl;
         }
         return this.request(endpoint, { method: 'GET', ...options });
     }
 
-    public async post(endpoint: string, body: any, options: RequestInit = {}, baseUrl?: string) {
-        if(baseUrl){
+    public async post(endpoint: string, body: any, options: AxiosRequestConfig = {}, baseUrl?: string) {
+        if (baseUrl) {
             this.baseUrl = baseUrl;
         }
         return this.request(endpoint, {
             method: 'POST',
-            body: JSON.stringify(body),
+            data: body,
             ...options,
         });
     }
 
-    public async put(endpoint: string, body: any, options: RequestInit = {}, baseUrl?: string) {
-        if(baseUrl){
+    public async put(endpoint: string, body: any, options: AxiosRequestConfig = {}, baseUrl?: string) {
+        if (baseUrl) {
             this.baseUrl = baseUrl;
         }
         return this.request(endpoint, {
             method: 'PUT',
-            body: JSON.stringify(body),
+            data: body,
             ...options,
         });
     }
 
-    public async delete(endpoint: string, options: RequestInit = {}, baseUrl?: string) {
-        if(baseUrl){
+    public async delete(endpoint: string, options: AxiosRequestConfig = {}, baseUrl?: string) {
+        if (baseUrl) {
             this.baseUrl = baseUrl;
         }
         return this.request(endpoint, { method: 'DELETE', ...options });
