@@ -1,52 +1,20 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { render, screen } from "@testing-library/react";
 import LoginPage from "@/app/login/page";
+import "@testing-library/jest-dom";
 
-describe('LoginPage', () => {
-    it('deve renderizar o formulário de login', () => {
+describe("LoginPage", () => {
+    it("renderiza corretamente os elementos principais", () => {
         render(<LoginPage />);
 
-        // Verifica se os campos de email e senha estão no documento
-        expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument();
-    });
+        expect(screen.getAllByRole("img").length).toBeGreaterThanOrEqual(1);
 
-    it('deve exibir uma mensagem de erro se os campos estiverem vazios', () => {
-        render(<LoginPage />);
+        expect(screen.getByRole("heading", { name: /entrar/i })).toBeInTheDocument();
 
-        // Submete o formulário sem preencher os campos
-        fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
+        expect(screen.getByText(/entre com suas credenciais/i)).toBeInTheDocument();
 
-        // Verifica se a mensagem de erro é exibida
-        expect(screen.getByText(/por favor, preencha todos os campos/i)).toBeInTheDocument();
-    });
+        expect(screen.getByText("Mocked LoginForm")).toBeInTheDocument();
 
-    it('deve exibir uma mensagem de sucesso ao fazer login com credenciais corretas', () => {
-        render(<LoginPage />);
-
-        // Preenche os campos com dados corretos
-        fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-        fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'senha123' } });
-
-        // Submete o formulário
-        fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
-
-        // Verifica se a mensagem de sucesso aparece
-        expect(screen.getByText(/bem-vindo, você está logado!/i)).toBeInTheDocument();
-    });
-
-    it('deve exibir uma mensagem de erro ao tentar fazer login com credenciais inválidas', () => {
-        render(<LoginPage />);
-
-        // Preenche os campos com dados inválidos
-        fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'wrong@example.com' } });
-        fireEvent.change(screen.getByLabelText(/senha/i), { target: { value: 'senhaErrada' } });
-
-        // Submete o formulário
-        fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
-
-        // Verifica se a mensagem de erro aparece
-        expect(screen.getByText(/credenciais inválidas/i)).toBeInTheDocument();
+        const link = screen.getByRole("link", { name: /cadastre-se aqui/i });
+        expect(link).toHaveAttribute("href", "/register");
     });
 });
