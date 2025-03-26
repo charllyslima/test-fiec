@@ -43,6 +43,9 @@ jobs:
 
       - name: Build project
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
-
+        
+      - name: Run lint
+        run: ${{ steps.detect-package-manager.outputs.runner }} next lint
+        
       - name: Run tests
         run: ${{ steps.detect-package-manager.outputs.runner }} test
