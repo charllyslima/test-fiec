@@ -1,44 +1,37 @@
 services:
-  # Serviço para o Next.js
-  next:
+  db:
+    image: mysql:8.0
+    container_name: db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PORT: ${DB_PORT}
+      DATABASE_URL: "mysql://${DB_DATABASE}:${DB_PASSWORD}@db:${DB_PORT}/${DB_DATABASE}"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "${DB_PORT}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: next-app
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "3000:3000"
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_DATABASE=${DB_DATABASE}
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}
-    depends_on:
-      - db
-    networks:
-      - backend
-    env_file:
-      - .env
-
-  # Serviço para o banco de dados PostgreSQL
-  db:
-    image: postgres:13
-    container_name: postgres-db
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_DATABASE}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - backend
 
 volumes:
-  postgres-data:
-
-networks:
-  backend:
-    driver: bridge
+  mysql_data:
