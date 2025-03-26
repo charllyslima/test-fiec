@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { hash } from "bcryptjs";
 
 export async function GET() {
     const session = await getSession();
@@ -29,37 +30,56 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
     const session = await getSession();
+
     if (!session) {
         return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
     const userId = session.user?.id;
+
     if (!userId) {
         return NextResponse.json({ error: "ID do usuário não encontrado na sessão" }, { status: 400 });
     }
 
-    const { name, email } = await req.json();
+    const { name, email, password } = await req.json();
 
-    if (!name && !email) {
+    if (!name && !email && !password) {
         return NextResponse.json({ error: "Nenhum dado para atualizar" }, { status: 400 });
     }
 
     try {
+        const dataToUpdate: any = {};
+        if (name) dataToUpdate.name = name;
+        if (email) dataToUpdate.email = email;
+        if (password) dataToUpdate.password = await hash(password, 10);
+
         const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: { name, email },
-            select: { id: true, name: true, email: true, createdAt: true },
+            data: dataToUpdate,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                createdAt: true,
+            },
         });
 
         return NextResponse.json(updatedUser);
     } catch (error) {
         if (error instanceof Error) {
-            return NextResponse.json({ error: "Erro ao atualizar usuário", details: error.message }, { status: 500 });
+            return NextResponse.json(
+                { error: "Erro ao atualizar usuário", details: error.message },
+                { status: 500 }
+            );
         }
 
-        return NextResponse.json({ error: "Erro desconhecido ao atualizar usuário" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Erro desconhecido ao atualizar usuário" },
+            { status: 500 }
+        );
     }
 }
+
 
 export async function DELETE() {
     const session = await getSession();

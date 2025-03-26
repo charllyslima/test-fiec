@@ -20,26 +20,9 @@ class UserService {
         }
     }
 
-    static async getUserById(id: string) {
+    static async updateUser( name: string, email: string, password: string) {
         try {
-            const response = await fetch(`/api/user?id=${id}`, {
-                method: "GET",
-            });
-
-            if (!response.ok) {
-                throw new Error("Erro ao buscar usuário");
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error("Erro ao buscar usuário:", error);
-            throw error;
-        }
-    }
-
-    static async updateUser(id: string, name?: string, email?: string, password?: string) {
-        try {
-            const response = await fetch(`/api/user?id=${id}`, {
+            const response = await fetch(`/api/user`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

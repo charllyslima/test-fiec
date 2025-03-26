@@ -9,7 +9,9 @@ export default function AdminLayout({children}: { children: ReactNode }) {
             <Navbar>
                 <ThemeSwitcher/>
                 <div className="h-[calc(100vh_-_65px)] overflow-y-auto p-5">
+
                     {children}
+
                 </div>
 
             </Navbar>
